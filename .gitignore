@@ -1,0 +1,13 @@
+
+# large data files
+
+data/*.csv
+
+cleanData.ipynb
+
+data/.ipynb_checkpoints/*
+
+# normal stuff
+.DS_Store
+node_modules
+.env
