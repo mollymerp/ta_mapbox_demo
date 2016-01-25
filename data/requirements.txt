@@ -1,0 +1,4 @@
+pandas==0.17.1
+gevent==1.1b5
+greenlet==0.4.7
+requests==2.7.0

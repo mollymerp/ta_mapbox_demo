@@ -2,10 +2,9 @@
 # large data files
 
 data/*.csv
+data/*.json
+data/geocoding/geocode_responses/*
 
-cleanData.ipynb
-
-data/.ipynb_checkpoints/*
 
 # normal stuff
 .DS_Store
