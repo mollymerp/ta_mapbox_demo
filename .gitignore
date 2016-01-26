@@ -4,6 +4,7 @@
 data/*.csv
 data/*.json
 data/geocoding/geocode_responses/*
+data/geocoding/merged_data/*
 
 
 # normal stuff
