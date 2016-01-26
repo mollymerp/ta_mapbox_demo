@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/mollymerp/ta_mapbox_demo/issues"
   },
-  "homepage": "https://github.com/mollymerp/ta_mapbox_demo#readme"
+  "homepage": "https://github.com/mollymerp/ta_mapbox_demo#readme",
+  "dependencies": {
+    "csv": "^0.4.6",
+    "csv-parse": "^1.0.1",
+    "q": "^1.4.1",
+    "turf": "^2.0.2"
+  }
 }
