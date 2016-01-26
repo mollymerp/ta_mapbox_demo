@@ -3,7 +3,6 @@ var fs = require('fs');
 var path = require('path');
 
 // external dependencies
-var turf = require('turf');
 var q = require('q');
 
 // custom modules
@@ -17,13 +16,13 @@ read_json('ta_unique_poi.json', '../')
   .then(function(filenames) {
     // iterate through .json files outputted by batch geocoder (127 total)
     // each file has 50 pois results
-    mapCollection(filenames, read_json)
+    promiseCollection(filenames, read_json)
     .then(function (json_data) {
       json_data.forEach(function (d, i){
-        if (i===0){
-          
-        merge_geocode_ta_data(d);
-        }
+        // if (i===0){
+
+        merge_geocode_ta_data(d, pois);
+        // }
       })
     })
     .catch(function (err){
@@ -37,9 +36,9 @@ read_json('ta_unique_poi.json', '../')
 
 
 //////////////////////////////////////////
-// helper functions
+// helpers
 
-function mapCollection(collection, func) {
+function promiseCollection(collection, func) {
   var currentPromise = q();
   var promises = collection.map(function(el) {
     return currentPromise = currentPromise.then(function() {
@@ -89,31 +88,4 @@ function read_json(filename, dir) {
     }
   });
   return defer.promise;
-}
-
-// bounding box for turf within function call
-// makin sure all the POI coordinates are indeed in SF (bay area)
-var sf_bbox = {
-  "type": "FeatureCollection",
-  "features": [
-  {
-    "type": "Feature",
-    "properties": {},
-    "geometry": {
-      "type": "Polygon",
-      "coordinates": [
-        [
-          [-122.65823364257811, 37.87268533717655],
-          [-122.43988037109374, 37.92253448828906],
-          [-122.35061645507812, 37.860759886765194],
-          [-122.25585937500001, 37.87268533717655],
-          [-122.16934204101562, 37.75768707689704],
-          [-122.33413696289064, 37.72510788462094],
-          [-122.37396240234375, 37.70446698048763],
-          [-122.53051757812499, 37.693601037244406],
-          [-122.65823364257811, 37.87268533717655]
-        ]
-      ]
-    }
-  }]
 }
