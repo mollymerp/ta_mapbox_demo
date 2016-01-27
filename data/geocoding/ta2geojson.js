@@ -1,3 +1,10 @@
+// Project: TripAdvisor Lab
+// Description: quick script to clean raw data and remove duplicate entries and make 
+//              Mapbox Geocoder API calls to fetch lat/long
+// Date: 1/25/2016
+// Author: Molly Lloyd, @mollymerp
+
+
 // packaged node modules
 var fs = require('fs');
 var path = require('path');

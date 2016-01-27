@@ -44,8 +44,8 @@ module.exports = function(promise, pois) {
 function cleanStrings(query, poi) {
   var trimmed = {};
   trimmed.clean_query = query.slice(0, query.length - 2).join(" ");
-  trimmed.street = poi.street1 ? poi.street1.toLowerCase().trim().replace(/[^\w\s]|_/g, "") : "";
-  trimmed.name = poi.primaryname ? poi.primaryname.toLowerCase().trim().replace(/[^\w\s]|_/g, "") : "";
+  trimmed.street = poi.street1 ? poi.street1.toLowerCase().trim().replace(/[^\w\s]|_|[\s\s]/g, "") : "";
+  trimmed.name = poi.primaryname ? poi.primaryname.toLowerCase().trim().replace(/[^\w\s]|_|[\s\s]/g, "") : "";
   return trimmed;
 }
 
