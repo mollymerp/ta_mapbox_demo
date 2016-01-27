@@ -43,6 +43,9 @@ read_json('ta_unique_poi.json', '../')
             feature_data.forEach(function(d){
               all_geojson.features.push(d);
             })
+            // flatten the features array so we output valid geojson
+            all_geojson.features = [].concat.apply([], all_geojson.features);
+            console.log("total number of pois",all_geojson.features.length)
 
             fs.writeFile(path.join(__dirname, 'merged_data/TA_all.geojson'), JSON.stringify(all_geojson), function(err){
               if (err) {

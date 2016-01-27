@@ -13,18 +13,45 @@
   map.on('style.load', function() {
     console.log("style loaded");
 
-    map.addSource("test_data", {
+    map.addSource("poi_data", {
       type: "geojson",
-      data: "test.geojson",
+      data: "data/test2.geojson",
       cluster: true,
       clusterMaxZoom: 14, // Max zoom to cluster points on
       clusterRadius: 400 // Radius of each cluster when clustering points (defaults to 400)
     })
 
+    map.addSource("neighborhoods_data", {
+      type: "geojson",
+      data: "data/neighborhoods.geojson"
+    })
+
+    map.addLayer({
+      "id": "neighborhood_polygons",
+      "source": "neighborhoods_data",
+      "type": "fill",
+      "paint":{
+        "fill-color":"blue" ,
+        "fill-opacity": .3,
+        "fill-outline-color": "white"
+      }
+    })
+
+    // map.addLayer({
+    //   "id": "neighborhood_labels",
+    //   "source": "neighborhoods_data",
+    //   "type": "symbol",
+    //   "layout":{
+    //     "text-field": "{neighborhood}",
+    //     "text-size": 12,
+    //     "text-justify": "center"
+    //   }
+    // })
+
     map.addLayer({
       "id": "non-cluster-markers",
       "type": "symbol",
-      "source": "test_data",
+      "source": "poi_data",
       "layout": {
         "icon-image": "marker-15"
       },
@@ -36,9 +63,9 @@
     map.addLayer({
       "id": "cluster-low",
       "type": "circle",
-      "source": "test_data",
+      "source": "poi_data",
       // Set a filter the 'low' category
-      "filter": ["<", "point_count", 5],
+      "filter": ["<", "point_count", 15],
       "layout": {},
       "paint": {
         "circle-color": "#1a9641",
@@ -47,10 +74,11 @@
       "interactive": true
     });
 
+
     var clusters = map.addLayer({
         "id": "cluster-count",
         "type": "symbol",
-        "source": "test_data",
+        "source": "poi_data",
         "layout": {
             "text-field": "{point_count}",
             "text-size": 12

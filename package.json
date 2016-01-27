@@ -19,6 +19,7 @@
   "dependencies": {
     "csv": "^0.4.6",
     "csv-parse": "^1.0.1",
+    "geojsonhint": "^1.1.0",
     "q": "^1.4.1",
     "turf": "^2.0.2"
   }

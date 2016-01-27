@@ -3,9 +3,12 @@
 
 data/*.csv
 data/*.json
+data/*.geojson
 data/geocoding/geocode_responses/*
 data/geocoding/merged_data/*
 public/earthquake-ex/*
+public/data/planning_neighborhoods/*
+public/data/*.geojson
 *.pyc
 
 
