@@ -19,7 +19,7 @@ def geocode(mapbox_access_token, queries):
     """
     queries = queries.readlines()
     for i, query in enumerate(queries):
-        if i > 2500:
+        if i > 4217:
             batch = int(i / 100)
             resp = urlopen('https://api.tiles.mapbox.com/geocoding/v5/mapbox.places/{query}.json?access_token={token}'.format(query=quote_plus(query), token=mapbox_access_token))
 

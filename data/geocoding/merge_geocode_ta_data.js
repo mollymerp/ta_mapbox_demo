@@ -11,31 +11,37 @@ module.exports = function(promise, pois) {
   };
   var errors = [];
   console.log("current batch", batch);
-  geocode_json.forEach(function(point_res, j) {
-      j = (batch * 50) + j;
+  if (batch !== 0) {
+    geocode_json.forEach(function(point_res, j) {
+      j = (batch * 100) + j;
       var trimmed = cleanStrings(point_res.query, pois[j]);
       var query = trimmed.clean_query;
-      if (trimmed.street === query || trimmed.name === query) {
+      // if (trimmed.street === query || trimmed.name === query) {
         console.log(j, "success")
           // make sure the POI is in SF using turf and a bounding box of the SF bay area
         var results_in_sf = turf.within(point_res, sf_bbox);
         if (!results_in_sf.features[0] || point_res.features[0].place_name !== results_in_sf.features[0].place_name) {
-          errors = pushToErrors(j, trimmed.street, trimmed.name, query, errors)
+          errors = pushToErrors(j, trimmed.street, trimmed.name, query, "not in sf",errors)
 
         } else {
           var ta_properties = renameTAProperties(pois[j]);
           var merge = results_in_sf.features[0];
           merge.properties = ta_properties;
-          delete merge['relevance'];
-          delete merge['address'];
-          merged_json.features.push(merge)
+          if ((merge['relevance'] > .7) && merge['place_name'] !=='San Francisco, California, United States'){
+            delete merge['relevance'];
+            delete merge['address'];
+            merged_json.features.push(merge)
+          } else {
+            pushToErrors(j, trimmed.street, trimmed.name, query, "not relevant: " + merge['relevance'],errors, merge)
+          }
         }
-      } else {
-        errors = pushToErrors(j, trimmed.street, trimmed.name, query, errors)
-      }
+      // } else {
+        // errors = pushToErrors(j, trimmed.street, trimmed.name, query, "non-matched" ,errors)
+      // }
     })
     writeFile(false, batch, merged_json);
     writeFile(true, batch, errors);
+  }
 }
 
 /////////////////////////
@@ -44,14 +50,19 @@ module.exports = function(promise, pois) {
 function cleanStrings(query, poi) {
   var trimmed = {};
   trimmed.clean_query = query.slice(0, query.length - 2).join(" ");
-  trimmed.street = poi.street1 ? poi.street1.toLowerCase().trim().replace(/[^\w\s]|_|[\s\s]/g, "") : "";
-  trimmed.name = poi.primaryname ? poi.primaryname.toLowerCase().trim().replace(/[^\w\s]|_|[\s\s]/g, "") : "";
+  trimmed.street = poi.street1 ? poi.street1.toLowerCase().trim().replace(/[^\w\s]|_/g, "").replace(/(\s{2})/g," ") : "";
+  trimmed.name = poi.primaryname ? poi.primaryname.toLowerCase().trim().replace(/[^\w\s]|_/g, "").replace(/(\s{2})/g," ") : "";
   return trimmed;
 }
 
-function pushToErrors(j, street, name, query, errors) {
-  console.log('error: non-matching', j, street, name, query);
+function pushToErrors(j, street, name, query, type, errors, feature) {
+  if (feature) {
+    console.log("relevance error feature: ", feature, ", query", query)
+  } else {
+    console.log('error: '+ type, j, street, name, query);
+  }
   errors.push({
+    type: type,
     index: j,
     street1: street,
     primaryname: name,
@@ -62,7 +73,7 @@ function pushToErrors(j, street, name, query, errors) {
 
 function writeFile(error, batch, json) {
   var filex = error ? '_errors.json' : '.json'
-  fs.writeFile(path.join(__dirname, 'merged_data', batch + filex), JSON.stringify(json), function(err) {
+  fs.writeFile(path.join(__dirname, 'merged_data/temp_dataset_merged/', batch + filex), JSON.stringify(json), function(err) {
     if (err) {
       console.log("error saving file", batch);
     }
@@ -74,10 +85,10 @@ renameTAProperties = function(obj) {
   // Check for the old property name to avoid a ReferenceError in strict mode.
   var dictionary = {
     "name": "placetype",
-    "primaryname":"name",
+    "primaryname": "name",
     "officialurl": "website"
   }
-  
+
   for (var key in dictionary) {
     if (obj.hasOwnProperty(key)) {
       obj[dictionary[key]] = obj[key];

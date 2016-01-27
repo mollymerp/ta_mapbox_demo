@@ -26,11 +26,9 @@ read_json('ta_unique_poi.json', '../')
     promiseCollection(filenames, read_json)
     .then(function (json_data) {
       json_data.forEach(function (d, i){
-        // if (i===0){
-
         merge_geocode_ta_data(d, pois);
-        // }
       })
+
     })
     .catch(function (err){
       if (err) console.log("q.error",err);
@@ -58,7 +56,7 @@ function promiseCollection(collection, func) {
 
 function get_json_files() {
   defer = q.defer();
-  fs.readdir(path.join(__dirname, 'geocode_responses'), function(err, files) {
+  fs.readdir(path.join(__dirname, 'geocode_responses/temp_dataset_results'), function(err, files) {
     if (err) {
       console.log("error reading directory");
       defer.reject(err);
@@ -77,20 +75,21 @@ function get_json_files() {
 }
 
 function read_json(filename, dir) {
-  dir = dir || 'geocode_responses';
+  dir = dir || 'geocode_responses/temp_dataset_results';
   defer = q.defer();
+  // console.log("file", path.join(__dirname, dir) + '/' + filename)
   fs.readFile(path.join(__dirname, dir) + '/' + filename, function(err, data) {
     if (err) {
       console.log("read_json err:", filename);
       defer.reject(err);
     } else {
       parsed_data = JSON.parse(data)
-      if (dir !== 'geocode_responses') {
+      if (dir !== 'geocode_responses/temp_dataset_results') {
         pois = parsed_data;
       }
       defer.resolve({
         data: parsed_data,
-        batch: filename.replace(".json","")
+        batch: filename.replace(/(.json)/g,"")
       });
     }
   });
