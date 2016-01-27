@@ -10,6 +10,8 @@ except:
     from urllib import quote_plus as quote_plus
     from urllib2 import urlopen as urlopen
 
+## modified from https://github.com/mapbox/geocoding-example/blob/master/python/mapbox_geocode.py
+## in order to save results to file and 
 def geocode(mapbox_access_token, queries):
     """
     Submit a list of geocoding queries to Mapbox's geocoder. Save results to JSON file.
@@ -19,26 +21,25 @@ def geocode(mapbox_access_token, queries):
     """
     queries = queries.readlines()
     for i, query in enumerate(queries):
-        if i > 4217:
-            batch = int(i / 100)
-            resp = urlopen('https://api.tiles.mapbox.com/geocoding/v5/mapbox.places/{query}.json?access_token={token}'.format(query=quote_plus(query), token=mapbox_access_token))
+        batch = int(i / 100)
+        batch_filename = 'geocoding/geocode_responses/temp_dataset_results/mapbox-places-result'+`batch`+'.json';
+        resp = urlopen('https://api.tiles.mapbox.com/geocoding/v5/mapbox.places/{query}.json?access_token={token}'.format(query=quote_plus(query), token=mapbox_access_token))
 
-            result = json.loads(resp.read().decode('utf-8'))
-            if os.path.isfile('geocoding/geocode_responses/temp_dataset_results/mapbox-places-result'+`batch`+'.json') == False:
-                with open('geocoding/geocode_responses/temp_dataset_results/mapbox-places-result'+`batch`+'.json', 'w') as f:
-                    json.dump([],f)
+        result = json.loads(resp.read().decode('utf-8'))
+        if os.path.isfile(batch_filename) == False:
+            with open(batch_filename, 'w') as f:
+                json.dump([],f)
 
-            with open('geocoding/geocode_responses/temp_dataset_results/mapbox-places-result'+`batch`+'.json','r') as f:
-                list_of_results = json.load(f)
+        with open(batch_filename,'r') as f:
+            list_of_results = json.load(f)
 
-            list_of_results.append(result.copy())
+        list_of_results.append(result.copy())
 
-            with open('geocoding/geocode_responses/temp_dataset_results/mapbox-places-result'+`batch`+'.json','w') as f:
-                json.dump(list_of_results, f)
-            print('query', i, 'saved', query)
+        with open(batch_filename,'w') as f:
+            json.dump(list_of_results, f)
+        print('query', i, 'saved', query)
 
 
-# print(__name__)
 if __name__ == '__main__':
     token = os.environ.get('MapboxAccessToken', False)
     if not token:
