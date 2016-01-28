@@ -30,7 +30,9 @@ module.exports = function(promise, pois) {
       } else {
         var ta_properties = renameTAProperties(pois[j]);
         var merge = results_in_sf.features[0];
-        merge.properties = ta_properties;
+        for (key in ta_properties) {
+          merge.properties[key] = ta_properties[key];
+        }
         if ((merge['relevance'] > .7) && merge['place_name'] !== 'San Francisco, California, United States') {
           delete merge['relevance'];
           delete merge['address'];
