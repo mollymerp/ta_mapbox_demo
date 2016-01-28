@@ -1,0 +1,56 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 16;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+h4.fancy {
+  font-size: 14px;
+  letter-spacing: 2px;
+  line-height: 40px;
+  text-transform: uppercase;
+}
+
+#listing > button {
+  width: 100%;
+  background-color: white;
+}
+
+.directions-control.directions-control-inputs {
+  margin: 50px 7%;
+  width: 80%;
+}
+
+.directions-control.directions-control-inputs {
+  position: absolute;
+}
+.info-container {
+  height: 100%;
+}
+
+.full-height-container {
+  margin: 2%;
+  overflow: hidden;
+  height: 100%;
+}
+
+.full-height-container .scroll {
+  overflow: auto;
+  height: 100%;
+}
+
+.heading-container {
+  height: 4rem;
+  padding: 1rem;
+}
+
+#search-view {
+  visibility: hidden;
+}

@@ -5,6 +5,8 @@ var data = {
   neighborhoods: null
 };
 
+var popupHover, popup;
+
 $.getJSON('data/pois.geojson', function(dat) {
   data.pois = dat;
   $.getJSON('data/neighborhoods.geojson', function(n_dat) {
@@ -15,9 +17,11 @@ $.getJSON('data/pois.geojson', function(dat) {
 
     var neighborhoods = {};
     data.neighborhoods.features.forEach(function(n) {
-       neighborhoods[n.properties.neighborhood] = {"center": turf.center(turf.featurecollection([n])).geometry.coordinates, "extent": [turf.extent(n).slice(0,2),turf.extent(n).slice(2)]};
+      neighborhoods[n.properties.neighborhood] = {
+        "center": turf.center(turf.featurecollection([n])).geometry.coordinates,
+        "extent": [turf.extent(n).slice(0, 2), turf.extent(n).slice(2)]
+      };
     });
-    
 
     function loadData() {
       for (var key in data) {
@@ -62,15 +66,19 @@ $.getJSON('data/pois.geojson', function(dat) {
         "id": "neighborhoods",
         "source": "neighborhoods_data",
         "type": "fill",
-        "layout":{
-          "visibility":"visible"
+        "layout": {
+          "visibility": "visible"
         },
         "paint": {
           "fill-color": "blue",
           "fill-opacity": {
             "base": 0.3,
-            "stops": [[12, 0.3],[13, 0.15],[14,0]]
-          } ,
+            "stops": [
+              [12, 0.3],
+              [13, 0.15],
+              [14, 0]
+            ]
+          },
           "fill-outline-color": "white"
         },
         "interactive": true
@@ -92,10 +100,10 @@ $.getJSON('data/pois.geojson', function(dat) {
         "type": "symbol",
         "source": "poi_data",
         "layout": {
-          "icon-image": "{maki}-15"
+          "icon-image": "marker-15"
         },
         "paint": {
-          "icon-color":"gray"
+          "icon-color": "gray"
         },
         "interactive": true
       });
@@ -108,11 +116,18 @@ $.getJSON('data/pois.geojson', function(dat) {
         "layout": {
           "visibility": "visible"
         },
+        // "filter": ["<", "point_count", 1],
         "paint": {
-          "circle-color": "#1a9641",
+          "circle-color": "black",
+          "circle-opacity": .5,
           "circle-radius": {
             "base": 30,
-            "stops": [[12, 30], [13, 25], [14, 20], [15,15]]
+            "stops": [
+              [12, 30],
+              [13, 25],
+              [13.5, 15],
+              [14, 7]
+            ]
           }
         },
         "interactive": true
@@ -131,26 +146,39 @@ $.getJSON('data/pois.geojson', function(dat) {
         "interactive": true
       });
       
+      // initialize listings:
+      buildListings(data.pois.features);
+
       // map state setting functions
-      var map_zoomed = false; 
+  
 
       function getMapState() {
         var state = {
           "zoom": map.getZoom(),
           "neighborhood_vis": map.getLayoutProperty("neighborhoods", "visibility"),
-          // "cluster_vis": map.getLayoutProperty("cluster", "visibility")
+          "directions": false
         };
         return state;
       }
-      
-      function setMapState(){
-       // function for setting many map attributes at once? 
+
+      function setMapState() {
+        // function for setting many map attributes at once? 
       }
 
-      function getViewState(){
+      function getViewState() {
         // function for determining any of the filtering/interactive options on the UI
       }
 
+
+      ////////// build UI
+      var directions = mapboxgl.Directions({
+        unit: 'metric', // Use the metric system to display distances.
+        profile: 'walking', // Set the initial profile to walking.
+        container: 'directions-view', // Specify an element thats not the map container.
+        proximity: [-122.4766159057617, 37.77505678240509] // Give search results closer to these coordinates higher priority.
+      });
+
+      map.addControl(directions);
 
       map.on('click', function(e) {
         map.featuresAt(e.point, {
@@ -158,25 +186,33 @@ $.getJSON('data/pois.geojson', function(dat) {
         }, function(err, features) {
           if (err) console.log(err);
           if (features) {
-            if (getMapState().neighborhood_vis === "visible"){
+            if (getMapState().neighborhood_vis === "visible") {
               map.fitBounds(neighborhoods[features[0].properties.neighborhood].extent);
-              // map.setLayoutProperty("neighborhoods", "visibility", "none");
             }
           }
         })
-
-      // map.on('zoomend', function(e){
-      //   var state = getMapState();
-      //   console.log("zoom end", state.zoom)
-      //   if (state.zoom < 12 && state.neighborhood_vis === "none") {
-      //     map.setLayoutProperty("neighborhoods", "visibility", "visible");
-      //   } else if (state.zoom >= 12 && state.neighborhood_vis === "visible") {
-      //     map.setPaintProperty("neighborhoods", "fill-color", "none");
-          
-      //   }
-      // })
-
       })
+
+      map.on('mousemove', function(e) {
+        map.featuresAt(e.point, {
+          radius: 7.5,
+          includeGeometry: true,
+          layer: 'cluster-low'
+        }, function(err, feature) {
+          if (err) return console.error(err);
+          if (getMapState().zoom > 13) {
+            if (feature.length) {
+              featureHover(feature[0]);
+              map.getCanvas().style.cursor = 'pointer';
+            } else {
+              var $popupHover = map.getContainer().querySelector('#popup-hover');
+              if ($popupHover) popupHover.remove();
+              map.getCanvas().style.cursor = '';
+            }
+          }
+
+        });
+      });
 
     })
   })

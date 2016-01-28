@@ -4,11 +4,10 @@
 <head>
   <title>Trip Advisor Mapbox Lab</title>
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-  
-  <link href='mapbox-gl.css' rel='stylesheet' />
+  <link href='styles/mapbox-gl.css' rel='stylesheet' />
   <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet' />
   <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v1.0.0/mapbox-gl-directions.css' type='text/css' />
-  <link rel="stylesheet" href="custom.css">
+  <link rel="stylesheet" href="styles/custom.css">
   <script src='https://api.mapbox.com/mapbox-gl-js/v0.13.1/mapbox-gl.js'></script>
   <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v1.0.0/mapbox-gl-directions.js'></script>
 </head>
@@ -18,20 +17,30 @@
   </div>
   <div class="pin-topleft z1 col4 info-container">
     <div class="fill-white full-height-container">
-      <div class="heading-container">
-        <div class="rounded-toggle col6">
-          <div id="suggested">Suggested</div>
-        </div>
-        <div class="rounded-toggle col6">
-          <div id="filter-type">By Type</div>
-        </div>
+    <div id='toggle-views' class='checkbox-pill col12 clearfix'>
+      <input type='button' id='search' value="Search" class='col6 truncate icon check unround button'>
+      <input type='button' id='directions' value="Directions" class='col6 truncate icon check unround button'>
+    </div>
+    <div id="search-view">
+      <fieldset class='with-icon'>
+        <span class='icon search'></span>
+        <input id='filter-listings' class='col12 round clean' type='text' placeholder='Filter listings' />
+      </fieldset>
+      <div id='listing' class='scroll round-bottom round-bottom'>
       </div>
+    </div>
+    <div id="directions-view" >
+      
+    </div>
+      
     </div>
   </div>
   <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
-  <script src=""></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.0.1/lodash.min.js"></script>
   <script src="http://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js"></script>
-  <script src='index.js'></script>
+  <script src="lib/fuzzy.js"></script>
+  <script src="prev_bites.js"></script>
+  <script src="index.js"></script>
 </body>
 
 </html>

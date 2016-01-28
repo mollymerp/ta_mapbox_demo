@@ -8,7 +8,8 @@ data/geocoding/geocode_responses/*
 data/geocoding/merged_data/*
 public/earthquake-ex/*
 public/data/planning_neighborhoods/*
-public/data/*.geojson
+public/data/*
+public/lib/*
 public/poi-by-radius-demo-mb-pages/*
 *.pyc
 
