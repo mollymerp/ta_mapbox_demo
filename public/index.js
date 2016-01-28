@@ -43,7 +43,7 @@ $.getJSON('data/pois.geojson', function(dat) {
 
     var map = new mapboxgl.Map({
       container: 'map', // container id
-      style: 'mapbox://styles/mapbox/light-v8', //stylesheet location
+      style: 'mapbox://styles/mlloyd/cigu4i3pv00059gm0p6g1b4el', //stylesheet location
       center: [-122.4766159057617, 37.77505678240509], // starting position
       zoom: 12, // starting zoom
     });
@@ -65,42 +65,30 @@ $.getJSON('data/pois.geojson', function(dat) {
       map.addLayer({
         "id": "neighborhoods",
         "source": "neighborhoods_data",
-        "type": "fill",
+        "type": "line",
         "layout": {
           "visibility": "visible"
         },
         "paint": {
-          "fill-color": "blue",
-          "fill-opacity": {
-            "base": 0.3,
+          "line-color": "#CC7E55",
+          "line-width": {
+            "base": 3,
             "stops": [
-              [12, 0.3],
-              [13, 0.15],
+              [12, 2],
+              [13, 1],
               [14, 0]
             ]
-          },
-          "fill-outline-color": "white"
+          }
         },
         "interactive": true
       })
-
-      // map.addLayer({
-      //   "id": "neighborhood_labels",
-      //   "source": "neighborhoods_data",
-      //   "type": "symbol",
-      //   "layout":{
-      //     "text-field": "{neighborhood}",
-      //     "text-size": 12,
-      //     "text-justify": "center"
-      //   }
-      // })
 
       map.addLayer({
         "id": "non-cluster-markers",
         "type": "symbol",
         "source": "poi_data",
         "layout": {
-          "icon-image": "marker-15"
+          "icon-image": "{maki}-18"
         },
         "paint": {
           "icon-color": "gray"
@@ -116,7 +104,7 @@ $.getJSON('data/pois.geojson', function(dat) {
         "layout": {
           "visibility": "visible"
         },
-        // "filter": ["<", "point_count", 1],
+        "filter": [">", "point_count", 2],
         "paint": {
           "circle-color": "black",
           "circle-opacity": .5,
@@ -125,8 +113,7 @@ $.getJSON('data/pois.geojson', function(dat) {
             "stops": [
               [12, 30],
               [13, 25],
-              [13.5, 15],
-              [14, 7]
+              [13.5, 20]
             ]
           }
         },
@@ -145,12 +132,12 @@ $.getJSON('data/pois.geojson', function(dat) {
         "paint": {},
         "interactive": true
       });
-      
-      // initialize listings:
-      buildListings(data.pois.features);
+
+      // tab switch views 
+      var $directionsView = document.getElementById('directions-view');
+      var $searchView = document.getElementById('search-view');
 
       // map state setting functions
-  
 
       function getMapState() {
         var state = {
@@ -161,14 +148,92 @@ $.getJSON('data/pois.geojson', function(dat) {
         return state;
       }
 
-      function setMapState() {
-        // function for setting many map attributes at once? 
+      function getFeatures() {
+        var center = map.getCenter()
+        var center_arr = [center.lng, center.lat]
+
+        var $popup = map.getContainer().querySelector('#popup');
+        if ($popup) popup.remove();
+
+        map.featuresAt(center_arr, {
+          radius: 800,
+          includeGeometry: true,
+          layer: ['non-cluster-markers']
+        }, function(err, features) {
+          if (err) return console.error(err);
+          if (features.length > 10){
+
+            buildListings(features);
+          } 
+        });
+      }
+
+      function buildListings(features) {
+        var $listing = document.getElementById('listing');
+        $listing.innerHTML = '';
+        if (features.length) {
+          features.forEach(function(feature) {
+            var item = document.createElement('button');
+            item.innerHTML = listing_template({
+              data: feature.properties
+            });
+            $listing.appendChild(item);
+
+            item.addEventListener('click', function() {
+              featureSelection(feature);
+            });
+            item.addEventListener('mouseover', function() {
+              featureHover(feature);
+            });
+            item.addEventListener('mouseout', function() {
+              var $popupHover = map.getContainer().querySelector('#popup-hover');
+              if ($popupHover) popupHover.remove();
+            });
+            $(item).find('.get-directions').on('click', function(e) {
+              e.preventDefault();
+              showDirectionsView($(this).attr('id'));
+            });
+          });
+        } else {
+          var emptyState = document.createElement('div');
+          emptyState.className = 'pad1 prose';
+          emptyState.textContent = document.getElementById('legend').textContent;
+          $listing.appendChild(emptyState);
+        }
+      }
+
+      function featureHover(feature) {
+        var $popupHover = map.getContainer().querySelector('#popup-hover');
+        if ($popupHover) popupHover.remove();
+
+        popupHover = new mapboxgl.Popup()
+          .setLngLat(feature.geometry.coordinates)
+          .setHTML(buildPopup(feature, 'popup-hover').outerHTML)
+          .addTo(map);
+      }
+
+      function featureSelection(feature) {
+        var $popupHover = map.getContainer().querySelector('#popup-hover');
+        var $popup = map.getContainer().querySelector('#popup');
+        if ($popupHover) popupHover.remove();
+        if ($popup) popup.remove();
+
+        var coords = feature.geometry.coordinates;
+
+        popup = new mapboxgl.Popup()
+          .setLngLat(coords)
+          .setHTML(buildPopup(feature, 'popup').outerHTML)
+          .addTo(map);
+
+        map.flyTo({
+          "center": coords,
+          "zoom": 14
+        });
       }
 
       function getViewState() {
         // function for determining any of the filtering/interactive options on the UI
       }
-
 
       ////////// build UI
       var directions = mapboxgl.Directions({
@@ -178,7 +243,19 @@ $.getJSON('data/pois.geojson', function(dat) {
         proximity: [-122.4766159057617, 37.77505678240509] // Give search results closer to these coordinates higher priority.
       });
 
-      map.addControl(directions);
+      function showDirectionsView(destination) {
+        console.log("destination", destination);
+        $searchView.style.visibility = 'hidden';
+        $directionsView.style.visibility = 'visible';
+        map.addControl(directions);
+        directions.setOrigin('San Francisco');
+        destination ? directions.setDestination(destination) : null;
+      }
+
+      $directionsView.addEventListener('click', function(e) {
+        console.log("fired", e);
+
+      });
 
       map.on('click', function(e) {
         map.featuresAt(e.point, {
@@ -193,11 +270,15 @@ $.getJSON('data/pois.geojson', function(dat) {
         })
       })
 
+      map.on('zoomend', function (e){
+        getFeatures();
+      })
+
       map.on('mousemove', function(e) {
         map.featuresAt(e.point, {
           radius: 7.5,
           includeGeometry: true,
-          layer: 'cluster-low'
+          layer: 'non-cluster-markers'
         }, function(err, feature) {
           if (err) return console.error(err);
           if (getMapState().zoom > 13) {
@@ -213,6 +294,13 @@ $.getJSON('data/pois.geojson', function(dat) {
 
         });
       });
+
+      function init() {
+        buildListings(data.pois.features);
+        $searchView.style.visibility = 'show';
+      }
+
+      init();
 
     })
   })

@@ -11,6 +11,11 @@ body {
   width: 100%;
 }
 
+#search {
+  background-color: navy;
+}
+
+
 h4.fancy {
   font-size: 14px;
   letter-spacing: 2px;
@@ -51,6 +56,3 @@ h4.fancy {
   padding: 1rem;
 }
 
-#search-view {
-  visibility: hidden;
-}

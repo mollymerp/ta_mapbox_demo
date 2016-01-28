@@ -17,7 +17,7 @@ var listing_html = `<div class='info-popup pad1 keyline-bottom'>
     &middot;  <a href='<%- data.website %>' target='_blank' class='strong micro'>Website</a>
   <% } %>
   <% if (data.street1) { %>
-    &middot;  <a href='#' target='_blank' id = '<%- data.street1 %>' class='strong micro'>Get Directions</a>
+    &middot;  <a href='#' target='_blank' id = '<%- data.street1 %>' class='get-directions strong micro'>Get Directions</a>
   <% } %>
 </div>`;
 
@@ -49,51 +49,6 @@ function fuzzyFilter(query, features) {
   buildListings(features);
 }
 
-function getFeatures() {
-  var center = map.getCenter();
-
-  var $popup = map.getContainer().querySelector('#popup');
-  if ($popup) popup.remove();
-
-  map.featuresAt(center, {
-    radius: getComputedStyle(document.getElementById('map'), null).width.replace("px", "") / 2,
-    includeGeometry: true,
-    layer: 'non-cluster-markers'
-  }, function(err, features) {
-    if (err) return console.error(err);
-    buildListings(features);
-  });
-}
-
-function buildListings(features) {
-  var $listing = document.getElementById('listing');
-  $listing.innerHTML = '';
-  if (features.length) {
-    features.forEach(function(feature) {
-      var item = document.createElement('button');
-      item.innerHTML = listing_template({
-        data: feature.properties
-      });
-      $listing.appendChild(item);
-
-      item.addEventListener('click', function() {
-        featureSelection(feature);
-      });
-      item.addEventListener('mouseover', function() {
-        featureHover(feature);
-      });
-      item.addEventListener('mouseout', function() {
-        var $popupHover = map.getContainer().querySelector('#popup-hover');
-        if ($popupHover) popupHover.remove();
-      });
-    });
-  } else {
-    var emptyState = document.createElement('div');
-    emptyState.className = 'pad1 prose';
-    emptyState.textContent = document.getElementById('legend').textContent;
-    $listing.appendChild(emptyState);
-  }
-}
 
 
 function buildPopup(feature, id) {
@@ -106,35 +61,3 @@ function buildPopup(feature, id) {
   return popupEl;
 }
 
-function featureHover(feature) {
-  var $popupHover = map.getContainer().querySelector('#popup-hover');
-  if ($popupHover) popupHover.remove();
-
-  popupHover = new mapboxgl.Popup()
-    .setLngLat(feature.geometry.coordinates)
-    .setHTML(buildPopup(feature, 'popup-hover').outerHTML)
-    .addTo(map);
-}
-
-function featureHover(feature) {
-  var $popupHover = map.getContainer().querySelector('#popup-hover');
-  if ($popupHover) popupHover.remove();
-
-  popupHover = new mapboxgl.Popup()
-    .setLngLat(feature.geometry.coordinates)
-    .setHTML(buildPopup(feature, 'popup-hover').outerHTML)
-    .addTo(map);
-}
-
-function featureSelection(feature) {
-  var $popupHover = map.getContainer().querySelector('#popup-hover');
-  var $popup = map.getContainer().querySelector('#popup');
-  if ($popupHover) popupHover.remove();
-  if ($popup) popup.remove();
-
-  var coords = feature.geometry.coordinates;
-  popup = new mapboxgl.Popup()
-    .setLngLat(coords)
-    .setHTML(buildPopup(feature, 'popup'))
-    .addTo(map);
-}
