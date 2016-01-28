@@ -4,24 +4,31 @@
 <head>
   <title>Trip Advisor Mapbox Lab</title>
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-  <script src='mapbox-gl-dev.js'></script>
+  
   <link href='mapbox-gl.css' rel='stylesheet' />
+  <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet' />
   <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v1.0.0/mapbox-gl-directions.css' type='text/css' />
-
-  <style>
-      body { margin:0; padding:0; }
-      #map { position:absolute; top:0; bottom:0; width:100%; }
-  </style>
+  <link rel="stylesheet" href="custom.css">
+  <script src='https://api.mapbox.com/mapbox-gl-js/v0.12.4/mapbox-gl.js'></script>
+  <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v1.0.0/mapbox-gl-directions.js'></script>
 </head>
 
 <body>
   <div id="map">
-    
   </div>
-
-  <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v1.0.0/mapbox-gl-directions.js'></script>
-  <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js'></script>
-  <script src='ta-ui-gl.js'></script>
+  <div class="pin-topleft z1 col4 info-container">
+<!--     <div class="fill-white full-height-container">
+      <div class="heading-container">
+        <div class="rounded-toggle col6">
+          <div id="suggested">Suggested</div>
+        </div>
+        <div class="rounded-toggle col6">
+          <div id="filter-type">By Type</div>
+        </div>
+      </div>
+    </div> -->
+  </div>
+  <script src='bundle.js'></script>
 </body>
 
 </html>
